@@ -1,0 +1,20 @@
+#!/usr/bin/env php
+<?php
+
+define('SPARKED', true);
+define('FCPATH', __DIR__ . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR);
+define('ROOTPATH', __DIR__ . DIRECTORY_SEPARATOR);
+
+chdir(ROOTPATH);
+
+$pathsPath = realpath(ROOTPATH . 'app/Config/Paths.php');
+if (! $pathsPath) {
+    fwrite(STDERR, "Cannot find app/Config/Paths.php\n");
+    exit(1);
+}
+
+require $pathsPath;
+$paths = new Config\Paths();
+require rtrim($paths->systemDirectory, '\\/ ') . DIRECTORY_SEPARATOR . 'Boot.php';
+
+exit(CodeIgniter\Boot::bootSpark($paths));

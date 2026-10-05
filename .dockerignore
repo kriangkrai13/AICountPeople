@@ -1,0 +1,11 @@
+.git
+.DS_Store
+python/.venv
+python/config.json
+web/vendor
+web/writable/cache/*
+web/writable/logs/*
+web/writable/session/*
+web/writable/uploads/*
+*.log
+yolov8*.pt

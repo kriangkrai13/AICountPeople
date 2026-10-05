@@ -1,0 +1,16 @@
+{
+  "name": "aicountpeople/backoffice",
+  "description": "CodeIgniter 4 backoffice for room people counting statistics.",
+  "type": "project",
+  "require": {
+    "php": "^8.1",
+    "codeigniter4/framework": "^4.5"
+  },
+  "autoload": {
+    "psr-4": {
+      "App\\": "app/"
+    }
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true
+}

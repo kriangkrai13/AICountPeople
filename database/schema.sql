@@ -1,0 +1,58 @@
+CREATE DATABASE IF NOT EXISTS ai_count_people
+  CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
+
+USE ai_count_people;
+
+CREATE TABLE users (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(120) NOT NULL,
+  email VARCHAR(190) NOT NULL UNIQUE,
+  password_hash VARCHAR(255) NOT NULL,
+  role ENUM('admin', 'staff') NOT NULL DEFAULT 'admin',
+  is_active TINYINT(1) NOT NULL DEFAULT 1,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE rooms (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(160) NOT NULL,
+  code VARCHAR(60) NOT NULL UNIQUE,
+  description TEXT NULL,
+  is_active TINYINT(1) NOT NULL DEFAULT 1,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE daily_room_counts (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  room_id INT UNSIGNED NOT NULL,
+  count_date DATE NOT NULL,
+  total_in INT UNSIGNED NOT NULL DEFAULT 0,
+  total_out INT UNSIGNED NOT NULL DEFAULT 0,
+  last_recorded_at DATETIME NOT NULL,
+  camera_name VARCHAR(190) NULL,
+  entrance_side ENUM('left', 'right') NOT NULL DEFAULT 'right',
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY uq_room_count_date (room_id, count_date),
+  KEY idx_count_date (count_date),
+  CONSTRAINT fk_daily_room_counts_room
+    FOREIGN KEY (room_id) REFERENCES rooms(id)
+    ON DELETE CASCADE
+);
+
+CREATE TABLE count_sync_logs (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  room_id INT UNSIGNED NOT NULL,
+  count_date DATE NOT NULL,
+  total_in INT UNSIGNED NOT NULL,
+  total_out INT UNSIGNED NOT NULL,
+  payload JSON NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  KEY idx_room_created (room_id, created_at),
+  CONSTRAINT fk_count_sync_logs_room
+    FOREIGN KEY (room_id) REFERENCES rooms(id)
+    ON DELETE CASCADE
+);

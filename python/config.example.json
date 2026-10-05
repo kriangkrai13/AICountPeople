@@ -1,0 +1,28 @@
+{
+  "mysql": {
+    "host": "127.0.0.1",
+    "port": 3306,
+    "database": "ai_count_people",
+    "user": "aicount",
+    "password": "aicount1234"
+  },
+  "sync_interval_seconds": 30,
+  "detector": "yolo",
+  "yolo_model": "yolov8n.pt",
+  "yolo_tracker": "bytetrack.yaml",
+  "detection_confidence": 0.35,
+  "detection_iou": 0.45,
+  "camera_scan_limit": 3,
+  "line_position_ratio": 0.5,
+  "left_line_position_ratio": 0.35,
+  "right_line_position_ratio": 0.75,
+  "roi": {
+    "enabled": false,
+    "x1": 0.0,
+    "y1": 0.0,
+    "x2": 1.0,
+    "y2": 1.0
+  },
+  "max_tracking_distance": 90,
+  "track_ttl_frames": 18
+}

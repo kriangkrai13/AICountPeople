@@ -1,0 +1,79 @@
+name: AI_Count_People
+
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: AI_Count_People_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ai_count_people
+      MYSQL_USER: aicount
+      MYSQL_PASSWORD: aicount1234
+      TZ: Asia/Bangkok
+    ports:
+      - "3306:3306"
+    volumes:
+      - ai_count_people_mysql:/var/lib/mysql
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./database/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -proot --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  web:
+    build:
+      context: .
+      dockerfile: docker/web/Dockerfile
+    container_name: AI_Count_People_web
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      CI_ENVIRONMENT: development
+      AICOUNT_DB_HOST: mysql
+      AICOUNT_DB_PORT: 3306
+      AICOUNT_DB_DATABASE: ai_count_people
+      AICOUNT_DB_USER: aicount
+      AICOUNT_DB_PASSWORD: aicount1234
+      app.baseURL: http://localhost:8080/
+      database.default.hostname: mysql
+      database.default.database: ai_count_people
+      database.default.username: aicount
+      database.default.password: aicount1234
+      database.default.DBDriver: MySQLi
+      database.default.port: 3306
+      encryption.key: docker-dev-change-this-key
+    ports:
+      - "8080:80"
+    volumes:
+      - ./web:/var/www/html
+      - /var/www/html/vendor
+
+  python:
+    build:
+      context: .
+      dockerfile: docker/python/Dockerfile
+    container_name: AI_Count_People_python
+    profiles: ["python"]
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      DISPLAY: ${DISPLAY:-host.docker.internal:0}
+      AICOUNT_DB_HOST: mysql
+      AICOUNT_DB_PORT: 3306
+      AICOUNT_DB_DATABASE: ai_count_people
+      AICOUNT_DB_USER: aicount
+      AICOUNT_DB_PASSWORD: aicount1234
+    volumes:
+      - ./python:/app
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    devices:
+      - /dev/video0:/dev/video0
+
+volumes:
+  ai_count_people_mysql:
